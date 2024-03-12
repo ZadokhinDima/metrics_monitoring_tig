@@ -2,6 +2,8 @@ from bson import json_util
 from flask import Flask, jsonify, json, Response
 from pymongo import MongoClient
 from elasticsearch import Elasticsearch
+import statsd
+from metrics import APIMetrics
 
 app = Flask(__name__)
 
@@ -9,6 +11,8 @@ client = MongoClient('mongodb://admin:adminpassword@mongodb:27017/')
 users_mongo = client.users
 
 es = Elasticsearch(['elasticsearch'])
+
+metrics_client = statsd.StatsClient(host="telegraf", port=8125)
 
 @app.route('/mongo-johns')
 def mongo_johns():
@@ -25,6 +29,7 @@ def elastic_johns():
 
 @app.route('/all-johns')
 def all_johns():
+    metrics_client.incr(APIMetrics.REQUEST_COUNT)
     # Get the data from the MongoDB and Elasticsearch endpoints
     mongo_response, _ = mongo_johns()
     elastic_response, _ = elastic_johns()
