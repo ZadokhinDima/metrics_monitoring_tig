@@ -13,3 +13,5 @@ Command used for generating load on services:
 ```
 ab -n 100000 -c 200 http://localhost:80/all-johns
 ```
+
+On each request python app increases api.requests.count metric using statsd telegraf input.
